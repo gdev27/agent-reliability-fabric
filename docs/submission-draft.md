@@ -52,9 +52,8 @@ ENS is non-cosmetic and runtime-critical:
 - EVM smart contract anchoring (`PolicyRegistry`)
 - TypeScript/Hardhat policy and execution tooling
 
-## Team members and contacts
-- <NAME_1> — Telegram: <TG_1> — X: <X_1>
-- <NAME_2> — Telegram: <TG_2> — X: <X_2>
+## Builder and contact
+- Gaurav Dev
 
 ## Setup commands for judges
 ```bash
