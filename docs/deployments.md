@@ -10,6 +10,11 @@ Current status: pending live deployment (safe fail-closed behavior verified in o
 - `PolicyRegistry`: `pending`
 - Optional ERC-8004 registry: `n/a (optional in MVP)`
 
+## Policy URI requirements
+- `PolicyMeta.uri` should resolve to immutable content-addressed artifacts.
+- For local development this may be `file://...` or `og://stub/...`.
+- For production, replace stub URIs with CID-backed identifiers (or an equivalent cryptographically verifiable URI scheme) so on-chain references remain tamper-evident.
+
 ## Demo ENS names
 - Fund ENS: `eurofund.eth`
 - Agent ENS: `algo1.eurofund.eth`

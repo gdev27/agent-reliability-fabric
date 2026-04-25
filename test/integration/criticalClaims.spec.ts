@@ -105,7 +105,7 @@ describe("critical claims", () => {
       ensMainnetRpcUrl: "http://127.0.0.1:1",
       l2RegistryRpcUrl: "http://127.0.0.1:1",
       expectedRegistryChainId: 84532,
-      retryCount: 0,
+      maxRetries: 0,
       storage: {
         saveGraph: async () => ({ uri: "file://x", hash: policyHash }),
         loadGraph: async () => graph

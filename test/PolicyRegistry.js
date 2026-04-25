@@ -28,6 +28,36 @@ describe("PolicyRegistry", () => {
     const hash = ethers.keccak256(ethers.toUtf8Bytes("h1"));
     await expectRevert(() => registry.connect(outsider).registerPolicy(policyId, hash, "file://x"));
     await registry.connect(policyAdmin).registerPolicy(policyId, hash, "file://x");
+    await expectRevert(() => registry.connect(policyAdmin).registerPolicy(policyId, hash, "file://x"));
+  });
+
+  it("updates only existing policies and tracks version + previous hash", async () => {
+    const { registry, policyAdmin } = await deployFixture();
+    const policyId = ethers.keccak256(ethers.toUtf8Bytes("p3"));
+    const initialHash = ethers.keccak256(ethers.toUtf8Bytes("h3-initial"));
+    const updatedHash = ethers.keccak256(ethers.toUtf8Bytes("h3-updated"));
+
+    await expectRevert(() => registry.connect(policyAdmin).updatePolicy(policyId, updatedHash, "file://updated"));
+
+    await registry.connect(policyAdmin).registerPolicy(policyId, initialHash, "file://initial");
+    expect(await registry.policyVersion(policyId)).to.equal(1n);
+
+    const tx = await registry.connect(policyAdmin).updatePolicy(policyId, updatedHash, "file://updated");
+    const receipt = await tx.wait();
+    const updateEvent = receipt.logs
+      .map((log) => {
+        try {
+          return registry.interface.parseLog(log);
+        } catch {
+          return null;
+        }
+      })
+      .find((parsed) => parsed && parsed.name === "PolicyUpdated");
+
+    expect(updateEvent.args.previousHash).to.equal(initialHash);
+    expect(updateEvent.args.newHash).to.equal(updatedHash);
+    expect(updateEvent.args.version).to.equal(2n);
+    expect(await registry.policyVersion(policyId)).to.equal(2n);
   });
 
   it("supports multisig-style handover by granting and revoking admin role", async () => {

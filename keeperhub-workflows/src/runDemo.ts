@@ -14,9 +14,8 @@ export async function runPolicyAndWorkflow(input: {
   callerEnsName?: string;
   action: ActionRequest;
 }): Promise<Record<string, unknown>> {
-  const intentMessage = JSON.stringify({
+  const intentMessage = PolicyClient.buildIntentMessage({
     fundEnsName: input.fundEnsName,
-    callerEnsName: input.callerEnsName || "",
     action: input.action
   });
   const maybeIntentSigner = process.env.AGENT_PRIVATE_KEY ? new Wallet(process.env.AGENT_PRIVATE_KEY) : null;
@@ -35,7 +34,7 @@ export async function runPolicyAndWorkflow(input: {
     storage,
     expectedRegistryChainId: Number(process.env.POLICY_REGISTRY_CHAIN_ID || 84532),
     timeoutMs: Number(process.env.POLICY_CLIENT_TIMEOUT_MS || 5_000),
-    retryCount: Number(process.env.POLICY_CLIENT_RETRY_COUNT || 1),
+    maxRetries: Number(process.env.POLICY_CLIENT_MAX_RETRIES || process.env.POLICY_CLIENT_RETRY_COUNT || 1),
     agentRegistryAddress: process.env.ERC8004_REGISTRY_ADDRESS
   });
 

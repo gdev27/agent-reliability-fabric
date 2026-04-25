@@ -16,8 +16,17 @@ contract PolicyRegistry is AccessControl, Pausable {
     }
 
     mapping(bytes32 => PolicyMeta) public policies;
+    mapping(bytes32 => uint256) public policyVersion;
 
-    event PolicyRegistered(bytes32 indexed policyId, bytes32 indexed hash, string uri, address indexed actor);
+    event PolicyRegistered(bytes32 indexed policyId, bytes32 indexed hash, string uri, uint256 version, address indexed actor);
+    event PolicyUpdated(
+        bytes32 indexed policyId,
+        bytes32 indexed previousHash,
+        bytes32 indexed newHash,
+        string uri,
+        uint256 version,
+        address actor
+    );
     event PolicyActivationSet(bytes32 indexed policyId, bool active, address indexed actor);
     event RegistryPaused(address indexed actor);
     event RegistryUnpaused(address indexed actor);
@@ -29,8 +38,22 @@ contract PolicyRegistry is AccessControl, Pausable {
     }
 
     function registerPolicy(bytes32 policyId, bytes32 hash, string calldata uri) external whenNotPaused onlyRole(POLICY_ADMIN_ROLE) {
+        require(policies[policyId].hash == bytes32(0), "policy_exists");
         policies[policyId] = PolicyMeta({hash: hash, uri: uri, active: true, updatedAt: block.timestamp});
-        emit PolicyRegistered(policyId, hash, uri, msg.sender);
+        policyVersion[policyId] = 1;
+        emit PolicyRegistered(policyId, hash, uri, 1, msg.sender);
+    }
+
+    function updatePolicy(bytes32 policyId, bytes32 hash, string calldata uri) external whenNotPaused onlyRole(POLICY_ADMIN_ROLE) {
+        PolicyMeta storage meta = policies[policyId];
+        require(meta.hash != bytes32(0), "policy_not_found");
+        bytes32 previousHash = meta.hash;
+        meta.hash = hash;
+        meta.uri = uri;
+        meta.updatedAt = block.timestamp;
+        uint256 nextVersion = policyVersion[policyId] + 1;
+        policyVersion[policyId] = nextVersion;
+        emit PolicyUpdated(policyId, previousHash, hash, uri, nextVersion, msg.sender);
     }
 
     function setActive(bytes32 policyId, bool active) external whenNotPaused onlyRole(POLICY_ADMIN_ROLE) {
@@ -41,11 +64,19 @@ contract PolicyRegistry is AccessControl, Pausable {
         emit PolicyActivationSet(policyId, active, msg.sender);
     }
 
+    /**
+     * @notice Emergency circuit breaker callable by the guardian role.
+     * @dev Deliberately asymmetric with {unpause}: guardian can halt quickly, but cannot resume operations.
+     */
     function pause() external onlyRole(GUARDIAN_ROLE) {
         _pause();
         emit RegistryPaused(msg.sender);
     }
 
+    /**
+     * @notice Resume registry operations after incident review.
+     * @dev Restricted to DEFAULT_ADMIN_ROLE by design; guardians are intentionally not allowed to unpause.
+     */
     function unpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
         _unpause();
         emit RegistryUnpaused(msg.sender);
