@@ -6,6 +6,7 @@
   - `POLICY_ADMIN_ROLE`
   - `GUARDIAN_ROLE`
 - `pause()` by guardian; `unpause()` by admin.
+- This pause/unpause asymmetry is intentional: guardian can halt quickly in emergencies, while only admin can resume after incident review.
 - Unauthorized policy mutation attempts revert.
 
 ## Fail-closed guarantees
@@ -30,3 +31,8 @@
   - `restricted`: SHA-256 hash
   - `secret`: AES-GCM encrypted
 - No plaintext persistence for sensitive execution payload fields.
+
+## Policy artifact integrity
+- Policy graphs are hash-verified at load time and again before policy evaluation.
+- `PolicyRegistry` policy mutations emit previous and new hashes with a monotonic version counter for auditor traceability.
+- For the OG-backed adapter path, `PolicyMeta.uri` must converge to a verifiable content address (CID or equivalent immutable digest address), not a mutable location prefix.

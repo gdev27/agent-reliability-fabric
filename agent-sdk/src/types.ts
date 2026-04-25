@@ -1,4 +1,5 @@
 import { ActionRequest, ExecutionPlan, PolicyGraph } from "../../policy-engine/src/types";
+import { LoadGraphOptions } from "../../policy-engine/src/storageAdapter";
 
 export type PlanActionInput = {
   fundEnsName: string;
@@ -28,7 +29,7 @@ export interface PolicyRegistryReader {
 }
 
 export interface PolicyGraphLoader {
-  loadGraph(policyId: string): Promise<PolicyGraph>;
+  loadGraph(policyId: string, options?: LoadGraphOptions): Promise<PolicyGraph>;
 }
 
 export interface PolicyClientSignerConfig {

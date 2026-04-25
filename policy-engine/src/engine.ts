@@ -1,6 +1,25 @@
 import { ActionRequest, ExecutionPlan, PolicyDecisionTrace, PolicyGraph, PolicyNode } from "./types";
 
-const dailyNotional: Map<string, number> = new Map();
+export interface DailyNotionalStore {
+  get(policyId: string, day: string): Promise<number>;
+  set(policyId: string, day: string, amount: number): Promise<void>;
+}
+
+export class InMemoryDailyNotionalStore implements DailyNotionalStore {
+  private readonly values = new Map<string, number>();
+
+  async get(policyId: string, day: string): Promise<number> {
+    return this.values.get(`${policyId}:${day}`) || 0;
+  }
+
+  async set(policyId: string, day: string, amount: number): Promise<void> {
+    this.values.set(`${policyId}:${day}`, amount);
+  }
+
+  clear(): void {
+    this.values.clear();
+  }
+}
 
 function getNode<T extends PolicyNode["type"]>(graph: PolicyGraph, type: T): Extract<PolicyNode, { type: T }> {
   const node = graph.nodes.find((candidate) => candidate.type === type);
@@ -16,10 +35,14 @@ function dayKey(request: ActionRequest): string {
 }
 
 export function resetDailyNotionalState(): void {
-  dailyNotional.clear();
+  // Legacy no-op: module-level mutable state was removed in favor of injected stores.
 }
 
-export function evaluatePolicy(graph: PolicyGraph, request: ActionRequest): ExecutionPlan {
+export async function evaluatePolicy(
+  graph: PolicyGraph,
+  request: ActionRequest,
+  notionalStore: DailyNotionalStore
+): Promise<ExecutionPlan> {
   const trace: PolicyDecisionTrace = { steps: [] };
 
   const controls = getNode(graph, "controls");
@@ -60,8 +83,8 @@ export function evaluatePolicy(graph: PolicyGraph, request: ActionRequest): Exec
   }
   trace.steps.push({ check: "limits.single", passed: true });
 
-  const notionalKey = `${graph.id}:${dayKey(request)}`;
-  const currentNotional = dailyNotional.get(notionalKey) || 0;
+  const requestDay = dayKey(request);
+  const currentNotional = await notionalStore.get(graph.id, requestDay);
   if (currentNotional + request.amount > limits.maxDailyNotional) {
     trace.steps.push({ check: "limits.daily", passed: false, detail: `${currentNotional + request.amount}` });
     return {
@@ -72,7 +95,7 @@ export function evaluatePolicy(graph: PolicyGraph, request: ActionRequest): Exec
       trace
     };
   }
-  dailyNotional.set(notionalKey, currentNotional + request.amount);
+  await notionalStore.set(graph.id, requestDay, currentNotional + request.amount);
   trace.steps.push({ check: "limits.daily", passed: true });
 
   const privacy = getNode(graph, "privacy_router");
