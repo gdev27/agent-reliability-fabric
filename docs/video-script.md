@@ -18,7 +18,7 @@
 ## Narration script
 
 ### 0:00-0:20 - Problem and thesis
-"Most onchain agents are either smart but ungoverned, or governed but brittle. Institutional Policy OS v2 makes them both verifiable and execution-reliable."
+"Most onchain agents are either smart but ungoverned, or governed but brittle. Agent Reliability Fabric makes them both verifiable and execution-reliable."
 
 ### 0:20-0:45 - Triple-verified architecture
 "Our flow is triple-verified: intent verification, deterministic policy process integrity, and outcome attestation with encrypted run artifacts."

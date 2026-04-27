@@ -1,6 +1,6 @@
 # Adapter Contracts
 
-Institutional Policy OS v2 uses stable adapter interfaces so builders can swap infra providers without rewriting policy logic.
+Agent Reliability Fabric uses stable adapter interfaces so builders can swap infra providers without rewriting policy logic.
 
 ## Contract surfaces
 

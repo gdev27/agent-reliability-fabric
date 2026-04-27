@@ -1,8 +1,8 @@
 {
-  "name": "institutional-policy-os",
+  "name": "agent-reliability-fabric",
   "version": "1.0.0",
   "private": true,
-  "description": "Institutional Policy OS MVP for policy-constrained autonomous agents.",
+  "description": "Agent Reliability Fabric for policy-constrained autonomous agents.",
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit",

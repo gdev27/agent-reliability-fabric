@@ -1,5 +1,5 @@
 export default {
-  project: "institutional-policy-os-indexer",
+  project: "agent-reliability-fabric-indexer",
   // MVP scaffold: replace with actual chain and contract bindings during deployment.
   contracts: {
     PolicyRegistry: {

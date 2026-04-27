@@ -1,6 +1,6 @@
 # Versioning Policy
 
-Institutional Policy OS v2 uses semantic versioning for framework packages and interfaces.
+Agent Reliability Fabric uses semantic versioning for framework packages and interfaces.
 
 ## SemVer rules
 

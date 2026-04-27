@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for contributing to Institutional Policy OS v2.
+Thanks for contributing to Agent Reliability Fabric.
 
 ## Development setup
 

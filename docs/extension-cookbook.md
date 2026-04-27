@@ -1,6 +1,6 @@
 # Extension Cookbook
 
-This cookbook shows how to extend Institutional Policy OS v2 without forking core logic.
+This cookbook shows how to extend Agent Reliability Fabric without forking core logic.
 
 ## 1) Add a new inference backend
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://institutional-policy-os/policy.schema.json",
+  "$id": "https://agent-reliability-fabric/policy.schema.json",
   "type": "object",
   "additionalProperties": false,
   "required": [

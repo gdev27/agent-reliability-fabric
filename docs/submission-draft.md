@@ -1,13 +1,13 @@
 # ETHGlobal Submission Draft
 
 ## Project name
-Institutional Policy OS v2: Agent Reliability Fabric
+Agent Reliability Fabric
 
 ## One-line description
-Institutional Policy OS v2 is an open-source agent framework and autonomous swarm reference app that makes onchain execution trustworthy through policy constraints, verifiable identity, and reliability-first execution.
+Agent Reliability Fabric is an open-source agent framework and autonomous swarm reference app that makes onchain execution trustworthy through policy constraints, verifiable identity, and reliability-first execution.
 
 ## What we built
-Institutional Policy OS v2 includes:
+Agent Reliability Fabric includes:
 - Framework-level `PolicyGraph SDK` with stable adapters for identity, compute/memory, and execution.
 - ENS identity passports with role metadata, authorization checks, and reverse-resolution verification.
 - 0G-backed preflight inference and encrypted memory artifacts with chain attestation receipts.

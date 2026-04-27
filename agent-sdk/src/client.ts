@@ -79,7 +79,7 @@ export class PolicyClient {
 
   static buildIntentMessage(input: Pick<PlanActionInput, "fundEnsName" | "action">): string {
     return JSON.stringify({
-      domain: "institutional-policy-os.plan-action.v1",
+      domain: "agent-reliability-fabric.plan-action.v1",
       fundEnsName: input.fundEnsName,
       action: {
         actionType: input.action.actionType,
