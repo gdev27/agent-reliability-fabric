@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Contract, JsonRpcProvider, Wallet, namehash } from "ethers";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const resolverAbi = [
   "function setText(bytes32 node, string key, string value) external",

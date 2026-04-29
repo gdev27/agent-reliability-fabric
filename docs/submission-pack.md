@@ -64,7 +64,7 @@ npm run judge:preflight
 - Policy registry address + tx: `0x9eaB6ef0Cdd26363f0608DD0908adcf1BC0a4814` + `https://sepolia.basescan.org/tx/0x5c431661680dbf7c3ae26a3b5c88b8b5bb3570a0bdd333257fa712669c5bc540`
 - 0G attestation evidence: `n/a in current run (simulated chain adapter path)`
 - ENS passport output: `docs/evidence/ens-passport.txt`
-- KeeperHub execution evidence: `not reached in deterministic run due fail-closed ENS metadata gate (missing ENS text record: policy-id)`
+- KeeperHub execution evidence: `demo runs now produce workflowId/runId and succeeded reconciliation states (see docs/evidence/demo-deterministic.json and docs/evidence/demo-swarm.json)`
 - Preflight report (markdown): `docs/evidence/judge-preflight-report.md`
 - Preflight report (json): `docs/evidence/judge-preflight-report.json`
 - Preflight command outputs: `docs/evidence/preflight/*.txt`
@@ -72,8 +72,7 @@ npm run judge:preflight
 
 ## Current blockers (before final submit)
 - `npm run compile:policy` and `npm run demo:init`: revert with `policy_exists` on current `PolicyRegistry`.
-- Deterministic + swarm execution branch remains fail-closed until ENS text record `policy-id` is configured.
-- `npx tsx ens-identity/scripts/setEnsRecords.ts`: fails in current environment because ENS env values are missing (`ENS_MAINNET_RPC_URL` or `MAINNET_RPC_URL`, `DEPLOYER_PRIVATE_KEY`, `FUND_ENS_RESOLVER_ADDRESS`, `AGENT_ENS_RESOLVER_ADDRESS`).
+- Final video recording and submission form completion remain.
 
 ## Demo outputs to capture
 

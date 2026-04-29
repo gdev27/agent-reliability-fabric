@@ -4,7 +4,7 @@
 - [x] Project name + short description finalized.
 - [x] Public GitHub repo link added.
 - [x] README includes setup, architecture, and demo commands.
-- [ ] Working technical demo completed with live credentials (`demo:deterministic`, `demo:swarm`, and `ens:passport`).
+- [x] Working technical demo completed with live credentials (`demo:deterministic`, `demo:swarm`, and `ens:passport`).
 - [ ] Demo video is 2-3 minutes and shows agentic reasoning.
 - [x] Team member names + contact links (Telegram + X) added.
 
@@ -22,13 +22,13 @@
 
 ## ENS track checklist
 - [x] Show ENS identity passport output (`npm run ens:passport`).
-- [ ] Show role/subname identities and metadata fields.
+- [x] Show role/subname identities and metadata fields.
 - [x] Show authorization and reverse-verification in runtime flow.
-- [ ] Confirm no hard-coded values in final demo path.
+- [x] Confirm no hard-coded values in final demo path.
 
 ## KeeperHub track checklist
 - [x] Explain KeeperHub usage and why it is integral (not optional).
-- [ ] Show workflow submission, run status, logs, and analytics evidence.
+- [x] Show workflow submission, run status, logs, and analytics evidence.
 - [x] Include encrypted audit artifact examples in repo or demo output.
 - [x] Submit actionable integration feedback (`KEEPERHUB_FEEDBACK.md`).
 
@@ -54,8 +54,8 @@
 - [ ] Video owner: `Gaurav Dev`
 
 ## Verification snapshot (replace before submit)
-- Date/time (UTC): `2026-04-29T11:04:48Z`
-- Commit SHA: `290163f2aa5a857b9efb84b0eb278d3a51750c3b`
+- Date/time (UTC): `2026-04-29T21:17:18Z`
+- Commit SHA: `298f70a32be7e2a8980a8ecfb874c7725ebfc3d7`
 - Environment: `Windows 10 (local workspace)`
 - `npm install`: `PASS`
 - `npm run hh:compile`: `PASS`
@@ -63,6 +63,6 @@
 - `npm run typecheck`: `PASS`
 - `npm run compile:policy`: `FAIL (execution reverted: policy_exists on PolicyRegistry)`
 - `npm run demo:init`: `FAIL (execution reverted: policy_exists on PolicyRegistry)`
-- `npm run demo:deterministic`: `PASS (returns fail-closed dependency_failure due missing ENS text record: policy-id on vitalik.eth)`
-- `npm run demo:swarm`: `PASS (produces passport + traces via simulated 0G compute; execution branch fails closed before KeeperHub due missing ENS text record: policy-id)`
-- `npm run ens:passport`: `PASS (passport generated; authorized=false and metadata fields currently empty)`
+- `npm run demo:deterministic`: `PASS (small path executes with KeeperHub workflow/run + succeeded reconciliation; large path policy-denied on daily_notional_exceeded)`
+- `npm run demo:swarm`: `PASS (reverse verification succeeds; swarm execution path returns KeeperHub workflow/run + succeeded reconciliation)`
+- `npm run ens:passport`: `PASS (passport generated on gdev27.eth; authorized=true, walletAddress resolved, and verifiedReverse=true)`

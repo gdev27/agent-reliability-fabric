@@ -95,8 +95,32 @@ export async function reconcileWorkflow(
   );
 
   const auditPath = path.resolve(logDir, `${input.runId}.json`);
-  const executionLogs = client.getExecutionLogs ? await client.getExecutionLogs(input.runId) : { events: [] };
-  const analytics = client.getAnalytics ? await client.getAnalytics() : undefined;
+  let executionLogs: { events: Array<Record<string, unknown>> } = { events: [] };
+  if (client.getExecutionLogs) {
+    try {
+      executionLogs = await client.getExecutionLogs(input.runId);
+    } catch {
+      // Keep reconciliation fail-closed around execution state only; logs are additive evidence.
+      executionLogs = { events: [] };
+    }
+  }
+
+  let analytics:
+    | {
+        successRate?: number;
+        avgExecutionTimeMs?: number;
+        failedRuns?: number;
+        totalGasUsedWei?: string;
+      }
+    | undefined;
+  if (client.getAnalytics) {
+    try {
+      analytics = await client.getAnalytics();
+    } catch {
+      // Analytics endpoint availability/auth can vary by org tier; do not fail settled execution.
+      analytics = undefined;
+    }
+  }
   await fs.writeFile(auditPath, JSON.stringify(redacted, null, 2), "utf8");
   return { state: finalState, auditPath, logCount: executionLogs.events.length, analytics };
 }

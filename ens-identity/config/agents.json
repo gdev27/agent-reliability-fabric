@@ -1,44 +1,11 @@
 {
-  "fundEnsName": "eurofund.eth",
-  "agentEnsName": "algo1.eurofund.eth",
-  "policyId": "eurofund-mica",
-  "policyRegistryAddress": "",
+  "fundEnsName": "gdev27.eth",
+  "agentEnsName": "gdev27.eth",
+  "policyId": "0x784465e5240990461301aeaae5c627480543bd04b1835d780dc7df22ff7d7dfc",
+  "policyRegistryAddress": "0x9eaB6ef0Cdd26363f0608DD0908adcf1BC0a4814",
   "policyRegistryChainId": 84532,
   "executionProfile": "standard",
-  "agentRegistryAddress": "",
+  "agentRegistryAddress": "erc8004",
   "agentId": "1",
-  "roleAgents": [
-    {
-      "ensName": "planner.eurofund.eth",
-      "role": "planner",
-      "agentId": "planner-1",
-      "capabilities": ["policy-planning", "goal-decomposition", "constraint-modeling"],
-      "description": "Plans policy-compliant actions from institutional objectives.",
-      "endpoint": "mcp://policygraph/planner"
-    },
-    {
-      "ensName": "researcher.eurofund.eth",
-      "role": "researcher",
-      "agentId": "researcher-1",
-      "capabilities": ["market-scan", "signal-enrichment", "context-expansion"],
-      "description": "Adds market context and evidence to planning tasks.",
-      "endpoint": "mcp://policygraph/researcher"
-    },
-    {
-      "ensName": "critic.eurofund.eth",
-      "role": "critic",
-      "agentId": "critic-1",
-      "capabilities": ["risk-review", "policy-challenge", "failure-injection"],
-      "description": "Challenges plans and rejects risky policy paths.",
-      "endpoint": "mcp://policygraph/critic"
-    },
-    {
-      "ensName": "executor.eurofund.eth",
-      "role": "executor",
-      "agentId": "executor-1",
-      "capabilities": ["keeperhub-execution", "reconciliation", "attestation"],
-      "description": "Executes approved plans and records auditable outcomes.",
-      "endpoint": "mcp://policygraph/executor"
-    }
-  ]
+  "roleAgents": []
 }
