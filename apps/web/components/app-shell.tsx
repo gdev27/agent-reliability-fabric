@@ -69,7 +69,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           aria-controls="primary-navigation"
           aria-label={navOpen ? "Close navigation menu" : "Open navigation menu"}
         >
-          <span aria-hidden="true">{navOpen ? "X" : "|||"}</span>
+          <span aria-hidden="true">{navOpen ? "Close" : "Menu"}</span>
           <span className="sr-only">{navOpen ? "Close menu" : "Open menu"}</span>
         </button>
         <SessionBanner />

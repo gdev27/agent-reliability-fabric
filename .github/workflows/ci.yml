@@ -39,6 +39,9 @@ jobs:
       - name: Frontend lint
         run: npm run web:lint
 
+      - name: Frontend copy terminology check
+        run: npm run web:copy:check
+
       - name: Frontend format check
         run: npm run web:format:check
 

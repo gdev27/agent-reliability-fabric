@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CopyTextButton } from "../../components/copy-text-button";
 import { EmptyState } from "../../components/empty-state";
@@ -43,11 +44,17 @@ export default function EvidencePage() {
     <section className="page">
       <PageHeader
         eyebrow="Evidence"
-        title="Identity and attestation receipts"
-        description="Use this view to verify who acted, what was attested, and where audit artifacts are stored."
+        title="Identity and attestation evidence"
+        description="Verify who acted, what was attested, and where audit artifacts are stored."
       />
+      <article className="card card-tight">
+        <p className="mb-0 muted">
+          Evidence rows should map directly to run outcomes. Start from <Link href="/runs">Run Center</Link>{" "}
+          when investigating an incident, then use this page to validate identity and attestation metadata.
+        </p>
+      </article>
       {dataSource === "fallback" ? (
-        <FallbackBanner message="Evidence rows are currently fallback snapshots and should not be treated as live attestations." />
+        <FallbackBanner message="Fallback data active: evidence rows are deterministic snapshots and must not be treated as live attestations." />
       ) : null}
       {loading ? (
         <article className="card" role="status" aria-live="polite">
@@ -56,7 +63,7 @@ export default function EvidencePage() {
       ) : evidence.length === 0 ? (
         <EmptyState
           title="No evidence records yet"
-          description="Evidence will appear after runs write identity and attestation artifacts."
+          description="Evidence appears after runs write identity and attestation artifacts to indexed storage."
         />
       ) : (
         <article className="card">

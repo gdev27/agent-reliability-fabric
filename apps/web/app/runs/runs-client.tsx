@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EmptyState } from "../../components/empty-state";
 import { FallbackBanner } from "../../components/fallback-banner";
 import { PageHeader } from "../../components/page-header";
+import { pinRunForSession } from "../../lib/api";
 import { IndexedWorkflow } from "../../lib/types";
 import { StatusPill } from "../../components/status-pill";
 import { statusReason } from "../../lib/status";
@@ -26,6 +27,8 @@ function RunsClientInner({
   const searchParams = useSearchParams();
   const [runs] = useState<IndexedWorkflow[]>(initialRuns);
   const [dataSource] = useState<"live" | "fallback">(initialSource);
+  const [sessionView, setSessionView] = useState<"overview" | "investigation">("overview");
+  const [pinMessage, setPinMessage] = useState("");
   const filter = useMemo<keyof typeof filterLabels>(() => {
     const status = searchParams.get("status");
     return status && status in filterLabels ? (status as keyof typeof filterLabels) : "all";
@@ -56,12 +59,39 @@ function RunsClientInner({
     [runs]
   );
 
+  useEffect(() => {
+    function syncMode() {
+      const stored = searchParams.get("view");
+      if (stored === "investigation" || stored === "overview") {
+        setSessionView(stored);
+        return;
+      }
+      const fromStorage =
+        typeof window !== "undefined" ? window.localStorage.getItem("gctl.session.viewMode") : null;
+      setSessionView(fromStorage === "investigation" ? "investigation" : "overview");
+    }
+    syncMode();
+    window.addEventListener("storage", syncMode);
+    window.addEventListener("gctl:settings-updated", syncMode);
+    return () => {
+      window.removeEventListener("storage", syncMode);
+      window.removeEventListener("gctl:settings-updated", syncMode);
+    };
+  }, [searchParams]);
+
+  async function pinRun(runId: string) {
+    const result = await pinRunForSession(runId);
+    setPinMessage(
+      result.session ? `Pinned ${runId} to your workspace.` : "Sign in from Settings to save pinned runs."
+    );
+  }
+
   return (
     <section className="page">
       <PageHeader
         eyebrow="Run Center"
         title="Execution timeline and triage"
-        description="Find risky outcomes fast, understand why they happened, and drill into evidence for each run."
+        description="Find risky outcomes quickly, understand why they occurred, and drill into evidence for each run."
       />
       <div className="card card-tight row-between">
         <label htmlFor="statusFilter" className="field mb-0">
@@ -83,7 +113,7 @@ function RunsClientInner({
       </div>
 
       {dataSource === "fallback" ? (
-        <FallbackBanner message="Run records are currently rendered from fallback snapshots instead of live execution feeds." />
+        <FallbackBanner message="Fallback data active: run records are currently rendered from deterministic snapshots instead of live execution feeds." />
       ) : null}
 
       <article className="card card-tight row-between">
@@ -94,10 +124,12 @@ function RunsClientInner({
         <span className={`pill ${failClosedCount > 0 ? "warn" : "ok"}`}>{failClosedCount}</span>
       </article>
 
+      {pinMessage ? <article className="card card-tight muted">{pinMessage}</article> : null}
+
       {visibleRuns.length === 0 ? (
         <EmptyState
           title="No runs match this filter"
-          description="Try another status filter or verify readiness in onboarding."
+          description="Try another status filter, or verify readiness and connector health before re-running."
           ctaHref="/onboarding"
           ctaLabel="Open readiness checks"
         />
@@ -109,10 +141,11 @@ function RunsClientInner({
                 <tr>
                   <th>Run ID</th>
                   <th className="col-md">Workflow</th>
-                  <th>Path</th>
+                  {sessionView === "investigation" ? <th>Path</th> : null}
                   <th>Status</th>
-                  <th>Reason</th>
-                  <th className="col-lg">Audit Path</th>
+                  {sessionView === "investigation" ? <th>Reason</th> : null}
+                  {sessionView === "investigation" ? <th className="col-lg">Audit Path</th> : null}
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -124,12 +157,23 @@ function RunsClientInner({
                       </Link>
                     </td>
                     <td className="col-md">{run.workflowId}</td>
-                    <td>{run.pathType ? pathLabels[run.pathType] : "Not classified"}</td>
+                    {sessionView === "investigation" ? (
+                      <td>{run.pathType ? pathLabels[run.pathType] : "Not classified"}</td>
+                    ) : null}
                     <td>
                       <StatusPill state={run.state} />
                     </td>
-                    <td className="muted cell-reason">{statusReason(run.state)}</td>
-                    <td className="mono cell-path col-lg">{run.auditPath}</td>
+                    {sessionView === "investigation" ? (
+                      <td className="muted cell-reason">{statusReason(run.state)}</td>
+                    ) : null}
+                    {sessionView === "investigation" ? (
+                      <td className="mono cell-path col-lg">{run.auditPath}</td>
+                    ) : null}
+                    <td>
+                      <button type="button" className="btn btn-sm" onClick={() => pinRun(run.runId)}>
+                        Pin
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

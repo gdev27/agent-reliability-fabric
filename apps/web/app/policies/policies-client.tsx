@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { CopyTextButton } from "../../components/copy-text-button";
 import { EmptyState } from "../../components/empty-state";
 import { FallbackBanner } from "../../components/fallback-banner";
@@ -29,14 +30,15 @@ export function PoliciesClient({
       <PageHeader
         eyebrow="Policy Control"
         title="Policy inventory and routing intent"
-        description="Review active policy artifacts and test how trade amounts change routing behavior before execution."
+        description="Review active policy artifacts and preview how intent size affects safe versus escalated routing."
       />
 
       <article className="card">
         <div className="card-header">
-          <h3>Decision preview sandbox</h3>
+          <h3>Intent routing preview</h3>
           <p className="muted">
-            Quickly evaluate safe versus escalated path behavior using sample intent values.
+            Preview how an input amount maps to safe or escalated operating posture before reviewing live
+            runs.
           </p>
         </div>
         <div className="grid grid-2">
@@ -56,20 +58,27 @@ export function PoliciesClient({
         </div>
         <div className="card card-tight mt-4 support-card">
           <p className="mb-0">
-            <strong>Simulated decision for {asset}: </strong>
+            <strong>Preview decision for {asset}: </strong>
             {simulatedDecision}
+          </p>
+          <p className="muted mt-2 mb-0">
+            This panel is advisory only. Final allow/deny outcomes still come from the policy engine and
+            indexed run evidence.
+          </p>
+          <p className="mb-0 mt-2">
+            <Link href="/runs?view=investigation">Open runs for real outcomes</Link>
           </p>
         </div>
       </article>
 
       {dataSource === "fallback" ? (
-        <FallbackBanner message="Policy artifacts are displayed from fallback snapshots while live data is unavailable." />
+        <FallbackBanner message="Fallback data active: policy artifacts are displayed from deterministic snapshots while live data is unavailable." />
       ) : null}
 
       {policies.length === 0 ? (
         <EmptyState
           title="No policies indexed"
-          description="Add and register policy artifacts to see integrity and lifecycle state here."
+          description="Register policy artifacts to view integrity state and lifecycle status in this control plane."
         />
       ) : (
         <article className="card">

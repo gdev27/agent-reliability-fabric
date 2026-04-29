@@ -1,4 +1,11 @@
-import { IdentityEvidence, IndexedPolicy, IndexedWorkflow, OnboardingCheck, OpsOverview } from "./types";
+import {
+  ConnectorStatus,
+  IdentityEvidence,
+  IndexedPolicy,
+  IndexedWorkflow,
+  OnboardingCheck,
+  OpsOverview
+} from "./types";
 
 export const mockPolicies: IndexedPolicy[] = [
   {
@@ -100,5 +107,48 @@ export const mockIdentityEvidence: IdentityEvidence[] = [
     capabilities: ["risk challenge", "route veto"],
     attestation: "demo-receipt:0xattest002",
     auditPath: "reconciliation-logs/run-escalated-1002.json"
+  }
+];
+
+export const mockConnectors: ConnectorStatus[] = [
+  {
+    key: "wallet",
+    label: "Wallet + chain status",
+    health: "degraded",
+    detail: "Wallet RPC endpoint is not configured for operator checks.",
+    recoveryAction: "Set WALLET_RPC_URL and verify chain reachability from this deployment.",
+    lastSync: null
+  },
+  {
+    key: "policyRegistry",
+    label: "Policy registry lifecycle",
+    health: "connected",
+    detail: "Policy registry is configured for inventory lookups.",
+    recoveryAction: "Set POLICY_REGISTRY_ADDRESS to enable publish + lookup lifecycle visibility.",
+    lastSync: Date.now() - 1000 * 60 * 20
+  },
+  {
+    key: "ensIdentity",
+    label: "ENS identity and delegation",
+    health: "connected",
+    detail: "ENS identity records are available for role verification.",
+    recoveryAction: "Set FUND_ENS_NAME and update ENS identity records.",
+    lastSync: Date.now() - 1000 * 60 * 30
+  },
+  {
+    key: "keeperhub",
+    label: "KeeperHub reconciliation",
+    health: "degraded",
+    detail: "KeeperHub API key is not configured in this environment.",
+    recoveryAction: "Set KEEPERHUB_API_KEY to connect reconciliation and retry visibility.",
+    lastSync: Date.now() - 1000 * 60 * 50
+  },
+  {
+    key: "indexer",
+    label: "Indexer trust and freshness",
+    health: "connected",
+    detail: "Indexer is returning policy and run snapshots.",
+    recoveryAction: "Start indexer (`npm run indexer:api`) and verify INDEXER_URL/NEXT_PUBLIC_INDEXER_URL.",
+    lastSync: Date.now() - 1000 * 60 * 5
   }
 ];

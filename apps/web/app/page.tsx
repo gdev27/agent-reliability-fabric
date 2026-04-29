@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const [recentRuns, setRecentRuns] = useState<IndexedWorkflow[]>([]);
   const [dataSource, setDataSource] = useState<"live" | "fallback">("live");
   const [loading, setLoading] = useState(true);
+  const [sessionView, setSessionView] = useState<"overview" | "investigation">("overview");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -66,6 +67,20 @@ export default function DashboardPage() {
     return () => controller.abort();
   }, []);
 
+  useEffect(() => {
+    function syncViewMode() {
+      const stored = window.localStorage.getItem("gctl.session.viewMode");
+      setSessionView(stored === "investigation" ? "investigation" : "overview");
+    }
+    syncViewMode();
+    window.addEventListener("storage", syncViewMode);
+    window.addEventListener("gctl:settings-updated", syncViewMode);
+    return () => {
+      window.removeEventListener("storage", syncViewMode);
+      window.removeEventListener("gctl:settings-updated", syncViewMode);
+    };
+  }, []);
+
   const failClosedRuns = useMemo(
     () =>
       recentRuns.filter(
@@ -79,12 +94,44 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow="Overview"
         title="Operations dashboard"
-        description="Track system health, policy coverage, and the latest outcomes before diving into run details."
+        description="Track control-plane health, policy coverage, and latest outcomes before drilling into run evidence."
       />
 
       {dataSource === "fallback" ? (
-        <FallbackBanner message="Live endpoints were unavailable, so this view is showing deterministic demo snapshots." />
+        <FallbackBanner message="Fallback data active: live endpoints were unavailable, so this view is showing deterministic snapshots." />
       ) : null}
+
+      <article className="card feature-card">
+        <div className="row-between">
+          <div>
+            <h3>What gctl is for</h3>
+            <p className="muted mb-0">
+              gctl is a policy-constrained control plane for autonomous onchain workflows. It helps teams
+              prove decisions, monitor execution, and investigate evidence without digging through raw logs.
+            </p>
+          </div>
+          <Link href="/onboarding" className="btn btn-primary">
+            Start guided setup
+          </Link>
+        </div>
+        <p className="mt-2 mb-0">
+          <Link href="/about">Read full product guide</Link>
+        </p>
+        <div className="grid grid-3 mt-4">
+          <div className="card card-tight">
+            <p className="field-label">Step 1</p>
+            <p className="mb-0">Run readiness checks and verify indexer freshness.</p>
+          </div>
+          <div className="card card-tight">
+            <p className="field-label">Step 2</p>
+            <p className="mb-0">Connect identity, policy, and workflow infrastructure from Settings.</p>
+          </div>
+          <div className="card card-tight">
+            <p className="field-label">Step 3</p>
+            <p className="mb-0">Review runs, pin critical incidents, and drill into evidence records.</p>
+          </div>
+        </div>
+      </article>
 
       <div className="grid grid-3">
         <article className="card feature-card kpi">
@@ -100,7 +147,7 @@ export default function DashboardPage() {
         <article className="card alert-card kpi">
           <h3>Fail-closed alerts</h3>
           <p className="kpi-value">{overview.failClosedAlerts}</p>
-          <p className="muted">Requires triage in run center.</p>
+          <p className="muted">Requires triage in Run Center.</p>
           <p className="mb-0">
             <Link href="/runs?status=denied">Review fail-closed runs</Link>
           </p>
@@ -124,7 +171,7 @@ export default function DashboardPage() {
       ) : recentRuns.length === 0 ? (
         <EmptyState
           title="No recent runs yet"
-          description="Once workflows execute, this table will show the latest outcomes and evidence links."
+          description="Once workflows execute, this table will show recent outcomes and direct links to evidence."
           ctaHref="/onboarding"
           ctaLabel="Open readiness checks"
         />
@@ -140,9 +187,9 @@ export default function DashboardPage() {
                 <tr>
                   <th>Run ID</th>
                   <th className="col-md">Workflow</th>
-                  <th className="col-md">Policy</th>
+                  {sessionView === "investigation" ? <th className="col-md">Policy</th> : null}
                   <th>Status</th>
-                  <th>Reason</th>
+                  {sessionView === "investigation" ? <th>Reason</th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -152,11 +199,15 @@ export default function DashboardPage() {
                       <Link href={`/runs/${run.runId}`}>{run.runId}</Link>
                     </td>
                     <td className="col-md">{run.workflowId}</td>
-                    <td className="mono cell-id col-md">{run.policyId}</td>
+                    {sessionView === "investigation" ? (
+                      <td className="mono cell-id col-md">{run.policyId}</td>
+                    ) : null}
                     <td>
                       <StatusPill state={run.state} />
                     </td>
-                    <td className="muted cell-reason">{statusReason(run.state)}</td>
+                    {sessionView === "investigation" ? (
+                      <td className="muted cell-reason">{statusReason(run.state)}</td>
+                    ) : null}
                   </tr>
                 ))}
               </tbody>
@@ -165,7 +216,7 @@ export default function DashboardPage() {
         </article>
       )}
 
-      {failClosedRuns.length > 0 ? (
+      {sessionView === "investigation" && failClosedRuns.length > 0 ? (
         <article className="card alert-card">
           <div className="card-header row-between">
             <h3>Needs review now</h3>

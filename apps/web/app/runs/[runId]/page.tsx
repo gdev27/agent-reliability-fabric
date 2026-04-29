@@ -29,15 +29,23 @@ export default async function RunDetailsPage({ params }: { params: Promise<{ run
       <PageHeader
         eyebrow="Run Detail"
         title={`Run ${run.runId}`}
-        description="Review execution outcome, policy linkage, and evidence pointers before taking action."
+        description="Review outcome, policy linkage, and evidence pointers before taking corrective action."
       />
       <p className="muted mb-0">Runs / {run.runId}</p>
       <p className="mb-0">
-        <Link href="/runs">Back to run center</Link>
+        <Link href="/runs">Back to Run Center</Link>
       </p>
+      <div className="row">
+        <Link href="/evidence" className="btn btn-sm">
+          Open evidence view
+        </Link>
+        <Link href="/settings" className="btn btn-sm">
+          Check connector health
+        </Link>
+      </div>
 
       {workflowsResult.source === "fallback" ? (
-        <FallbackBanner message="This run detail is rendered from fallback snapshots because live run data was unavailable." />
+        <FallbackBanner message="Fallback data active: this run detail is rendered from deterministic snapshots because live run data was unavailable." />
       ) : null}
 
       <article className="card">
@@ -91,6 +99,9 @@ export default async function RunDetailsPage({ params }: { params: Promise<{ run
             <li>Validate policy limits and intent fields before re-running.</li>
             <li>Re-run only after evidence and policy references match expected values.</li>
           </ol>
+          <p className="mb-0 mt-2">
+            <Link href="/onboarding">Open readiness checks</Link>
+          </p>
         </article>
       ) : null}
     </section>

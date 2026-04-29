@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getOperatorSession, updateWorkspacePreferences } from "../lib/api";
+import { DisplayMode, SessionView } from "../lib/types";
+import { DEFAULT_DISPLAY_MODE, DEFAULT_SESSION_VIEW } from "../lib/workspace";
 
-type SessionView = "overview" | "investigation";
 const MODE_KEY = "gctl.settings.mode";
 const SESSION_VIEW_KEY = "gctl.session.viewMode";
 const SETTINGS_UPDATED_EVENT = "gctl:settings-updated";
@@ -10,13 +12,14 @@ const SETTINGS_UPDATED_EVENT = "gctl:settings-updated";
 export function SessionBanner() {
   const [mode, setMode] = useState<SessionView>(() => {
     if (typeof window === "undefined") {
-      return "overview";
+      return DEFAULT_SESSION_VIEW;
     }
     const saved = window.localStorage.getItem(SESSION_VIEW_KEY);
-    return saved === "investigation" ? "investigation" : "overview";
+    return saved === "investigation" ? "investigation" : DEFAULT_SESSION_VIEW;
   });
-  const [displayMode, setDisplayMode] = useState("demo");
+  const [displayMode, setDisplayMode] = useState<DisplayMode>(DEFAULT_DISPLAY_MODE);
   const [announce, setAnnounce] = useState("");
+  const [accountLabel, setAccountLabel] = useState("Guest workspace");
 
   useEffect(() => {
     function syncDisplayMode() {
@@ -33,6 +36,14 @@ export function SessionBanner() {
     }
 
     syncDisplayMode();
+    void (async () => {
+      const sessionResult = await getOperatorSession();
+      if (sessionResult.session) {
+        setAccountLabel(sessionResult.session.name);
+        setMode(sessionResult.session.preferences.sessionView);
+        setDisplayMode(sessionResult.session.preferences.displayMode);
+      }
+    })();
     window.addEventListener("storage", onStorage);
     window.addEventListener(SETTINGS_UPDATED_EVENT, syncDisplayMode);
     return () => {
@@ -43,6 +54,8 @@ export function SessionBanner() {
 
   useEffect(() => {
     window.localStorage.setItem(SESSION_VIEW_KEY, mode);
+    document.body.dataset.viewMode = mode;
+    void updateWorkspacePreferences({ sessionView: mode });
   }, [mode]);
 
   const blurb =
@@ -66,7 +79,8 @@ export function SessionBanner() {
           Display mode preference from Settings:{" "}
           {displayMode === "live" ? "Live-data wording" : "Demo-safe wording"}.
         </p>
-        <p className="muted">This changes presentation density only and does not affect permissions.</p>
+        <p className="muted">Workspace: {accountLabel}</p>
+        <p className="muted">This changes presentation density and detail visibility only.</p>
         <p className="muted mb-0">{blurb}</p>
       </div>
       <button type="button" className="btn" onClick={toggleMode}>

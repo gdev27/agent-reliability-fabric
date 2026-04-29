@@ -40,3 +40,28 @@ export const identityEvidenceSchema = z.object({
   attestation: z.string(),
   auditPath: z.string()
 });
+
+export const connectorStatusSchema = z.object({
+  key: z.enum(["wallet", "policyRegistry", "ensIdentity", "keeperhub", "indexer"]),
+  label: z.string(),
+  health: z.enum(["connected", "degraded", "disconnected"]),
+  detail: z.string(),
+  recoveryAction: z.string(),
+  lastSync: z.number().nullable()
+});
+
+export const workspacePreferencesSchema = z.object({
+  displayMode: z.enum(["demo", "live"]),
+  sessionView: z.enum(["overview", "investigation"]),
+  indexerUrlReference: z.string()
+});
+
+export const operatorSessionSchema = z.object({
+  operatorId: z.string(),
+  name: z.string(),
+  email: z.string(),
+  createdAt: z.number(),
+  lastSeenAt: z.number(),
+  preferences: workspacePreferencesSchema,
+  pinnedRunIds: z.array(z.string())
+});

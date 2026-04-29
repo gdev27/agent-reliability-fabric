@@ -35,7 +35,8 @@
     "web:typecheck": "npm --prefix apps/web run typecheck",
     "web:test": "npm --prefix apps/web run test",
     "web:lint": "npm --prefix apps/web run lint",
-    "web:format:check": "npm --prefix apps/web run format:check"
+    "web:format:check": "npm --prefix apps/web run format:check",
+    "web:copy:check": "tsx scripts/checkFrontendCopyTerms.ts"
   },
   "dependencies": {
     "ajv": "^8.20.0",

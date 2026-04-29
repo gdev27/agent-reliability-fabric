@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const routes = ["/", "/onboarding", "/policies", "/runs", "/swarm", "/evidence", "/settings"];
+const routes = ["/", "/about", "/onboarding", "/policies", "/runs", "/swarm", "/evidence", "/settings"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = process.env.SITE_URL || "http://localhost:3000";

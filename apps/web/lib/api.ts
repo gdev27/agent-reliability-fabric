@@ -1,12 +1,30 @@
-import { mockChecks, mockIdentityEvidence, mockOverview, mockPolicies, mockWorkflows } from "./mock-data";
-import { IdentityEvidence, IndexedPolicy, IndexedWorkflow, OnboardingCheck, OpsOverview } from "./types";
+import {
+  mockChecks,
+  mockIdentityEvidence,
+  mockOverview,
+  mockPolicies,
+  mockWorkflows,
+  mockConnectors
+} from "./mock-data";
+import {
+  ConnectorStatus,
+  IdentityEvidence,
+  IndexedPolicy,
+  IndexedWorkflow,
+  OnboardingCheck,
+  OperatorSession,
+  OpsOverview,
+  WorkspacePreferences
+} from "./types";
 import type { ZodType } from "zod";
 import {
+  connectorStatusSchema,
   identityEvidenceSchema,
   indexedPolicySchema,
   indexedWorkflowSchema,
   onboardingCheckSchema,
-  opsOverviewSchema
+  opsOverviewSchema,
+  operatorSessionSchema
 } from "./schemas";
 
 export type DataSource = "live" | "fallback";
@@ -108,4 +126,91 @@ export async function getIdentityEvidence(
     identityEvidenceSchema.array(),
     options
   );
+}
+
+export async function getConnectors(options?: FetchJsonOptions): Promise<DataResult<ConnectorStatus[]>> {
+  return fetchJson<ConnectorStatus[]>(
+    "/api/ops/connectors",
+    mockConnectors,
+    connectorStatusSchema.array(),
+    options
+  );
+}
+
+export async function getOperatorSession(
+  options?: FetchJsonOptions
+): Promise<{ session: OperatorSession | null }> {
+  const requestInit: RequestInit = {
+    cache: "no-store"
+  };
+  if (options?.signal) {
+    requestInit.signal = options.signal;
+  }
+  const res = await fetch("/api/account/session", requestInit);
+  if (!res.ok) {
+    return { session: null };
+  }
+  const payload = (await res.json()) as { session?: unknown };
+  if (!payload.session) {
+    return { session: null };
+  }
+  const parsed = operatorSessionSchema.safeParse(payload.session);
+  return { session: parsed.success ? parsed.data : null };
+}
+
+export async function createOperatorSession(input: {
+  name: string;
+  email: string;
+}): Promise<{ session: OperatorSession | null; message?: string }> {
+  const res = await fetch("/api/account/session", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(input)
+  });
+  const payload = (await res.json()) as { session?: unknown; message?: string };
+  if (!res.ok) {
+    return { session: null, message: payload.message || "Unable to create session." };
+  }
+  const parsed = operatorSessionSchema.safeParse(payload.session);
+  return { session: parsed.success ? parsed.data : null };
+}
+
+export async function deleteOperatorSession(): Promise<void> {
+  await fetch("/api/account/session", { method: "DELETE" });
+}
+
+export async function updateWorkspacePreferences(
+  preferences: Partial<WorkspacePreferences>
+): Promise<{ session: OperatorSession | null }> {
+  const res = await fetch("/api/account/workspace", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ preferences })
+  });
+  if (!res.ok) {
+    return { session: null };
+  }
+  const payload = (await res.json()) as { session?: unknown };
+  const parsed = operatorSessionSchema.safeParse(payload.session);
+  return { session: parsed.success ? parsed.data : null };
+}
+
+export async function pinRunForSession(runId: string): Promise<{ session: OperatorSession | null }> {
+  const res = await fetch("/api/account/pins", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ runId })
+  });
+  if (!res.ok) {
+    return { session: null };
+  }
+  const payload = (await res.json()) as { session?: unknown };
+  const parsed = operatorSessionSchema.safeParse(payload.session);
+  return { session: parsed.success ? parsed.data : null };
 }

@@ -10,7 +10,8 @@ import {
   IndexedWorkflow,
   OnboardingCheck,
   OpsOverview,
-  IdentityEvidence
+  IdentityEvidence,
+  ConnectorStatus
 } from "../../../../lib/types";
 import { cache } from "react";
 
@@ -210,4 +211,84 @@ export async function loadFailClosed(): Promise<SourceResult<IndexedWorkflow[]>>
     "/alerts/fail-closed",
     mockWorkflows.filter((w) => w.state === "denied")
   );
+}
+
+export async function loadConnectors(): Promise<SourceResult<ConnectorStatus[]>> {
+  const policiesResult = await loadPolicies();
+  const workflowsResult = await loadWorkflows();
+  const now = Date.now();
+  const latestWorkflowSync =
+    workflowsResult.data.reduce((max, run) => Math.max(max, run.updatedAt), 0) || null;
+
+  const connectors: ConnectorStatus[] = [
+    {
+      key: "wallet",
+      label: "Wallet + chain status",
+      health: process.env.WALLET_RPC_URL ? "connected" : "degraded",
+      detail: process.env.WALLET_RPC_URL
+        ? "Wallet RPC endpoint is configured."
+        : "Wallet RPC endpoint is not configured for operator checks.",
+      recoveryAction: "Set WALLET_RPC_URL and verify chain reachability from this deployment.",
+      lastSync: null
+    },
+    {
+      key: "policyRegistry",
+      label: "Policy registry lifecycle",
+      health: process.env.POLICY_REGISTRY_ADDRESS ? "connected" : "degraded",
+      detail: process.env.POLICY_REGISTRY_ADDRESS
+        ? `Registry configured at ${process.env.POLICY_REGISTRY_ADDRESS}.`
+        : "Policy registry address is missing.",
+      recoveryAction: "Set POLICY_REGISTRY_ADDRESS to enable publish + lookup lifecycle visibility.",
+      lastSync: null
+    },
+    {
+      key: "ensIdentity",
+      label: "ENS identity and delegation",
+      health: process.env.FUND_ENS_NAME ? "connected" : "degraded",
+      detail: process.env.FUND_ENS_NAME
+        ? `Fund identity is configured as ${process.env.FUND_ENS_NAME}.`
+        : "Fund ENS name is not configured.",
+      recoveryAction: "Set FUND_ENS_NAME and update ENS identity records.",
+      lastSync: null
+    },
+    {
+      key: "keeperhub",
+      label: "KeeperHub reconciliation",
+      health: process.env.KEEPERHUB_API_KEY ? "connected" : "degraded",
+      detail: process.env.KEEPERHUB_API_KEY
+        ? "KeeperHub API key is configured for workflow orchestration."
+        : "KeeperHub API key is not configured.",
+      recoveryAction: "Set KEEPERHUB_API_KEY to connect reconciliation and retry visibility.",
+      lastSync: latestWorkflowSync
+    },
+    {
+      key: "indexer",
+      label: "Indexer trust and freshness",
+      health:
+        workflowsResult.source === "live" && policiesResult.source === "live" ? "connected" : "disconnected",
+      detail:
+        workflowsResult.source === "live" && policiesResult.source === "live"
+          ? "Indexer is returning live policies and workflow telemetry."
+          : "Indexer is unreachable; fallback snapshots are active.",
+      recoveryAction: "Start indexer (`npm run indexer:api`) and verify INDEXER_URL/NEXT_PUBLIC_INDEXER_URL.",
+      lastSync: latestWorkflowSync
+    }
+  ];
+
+  const trustMeta = mergeTrustMeta(policiesResult, workflowsResult);
+
+  return {
+    ...trustMeta,
+    reasonCode: trustMeta.reasonCode,
+    recoveryAction: trustMeta.recoveryAction,
+    data: connectors.map((connector) =>
+      trustMeta.source === "fallback" && connector.key !== "indexer" && connector.health === "connected"
+        ? {
+            ...connector,
+            health: "degraded",
+            detail: `${connector.detail} Live telemetry is currently unavailable.`
+          }
+        : connector
+    )
+  };
 }

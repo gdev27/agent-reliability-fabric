@@ -6,6 +6,7 @@ This directory is split into three groups so contributors can quickly find the r
 - `architecture.md`
 - `trust-invariants.md`
 - `frontend-product-contract.md`
+- `frontend-copy-style-guide.md`
 - `frontend-ops-ui.md`
 - `adapter-contracts.md`
 - `security-model.md`

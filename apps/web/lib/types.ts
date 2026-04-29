@@ -38,3 +38,33 @@ export type IdentityEvidence = {
   attestation: string;
   auditPath: string;
 };
+
+export type DisplayMode = "demo" | "live";
+export type SessionView = "overview" | "investigation";
+
+export type WorkspacePreferences = {
+  displayMode: DisplayMode;
+  sessionView: SessionView;
+  indexerUrlReference: string;
+};
+
+export type OperatorSession = {
+  operatorId: string;
+  name: string;
+  email: string;
+  createdAt: number;
+  lastSeenAt: number;
+  preferences: WorkspacePreferences;
+  pinnedRunIds: string[];
+};
+
+export type ConnectorHealth = "connected" | "degraded" | "disconnected";
+
+export type ConnectorStatus = {
+  key: "wallet" | "policyRegistry" | "ensIdentity" | "keeperhub" | "indexer";
+  label: string;
+  health: ConnectorHealth;
+  detail: string;
+  recoveryAction: string;
+  lastSync: number | null;
+};
