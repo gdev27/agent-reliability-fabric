@@ -4,7 +4,7 @@
 #   Create token: fly auth login && fly orgs list && fly tokens create org -o YOUR_ORG_SLUG
 #   (Use an org token for CI; `fly tokens create deploy` requires an existing app: -a APP_NAME.)
 #
-# Then: Actions → "Deploy gctl indexer (Fly.io)" → Run workflow → enter a globally unique app name.
+# Then: Actions → "Deploy gctl indexer (Fly.io)" → Run workflow → app name + org slug (default personal).
 # Finally: Vercel → INDEXER_URL = https://<that-app-name>.fly.dev
 
 name: Deploy gctl indexer (Fly.io)
@@ -15,6 +15,11 @@ on:
       fly_app:
         description: Globally unique Fly app name (e.g. gctl-indexer-gdev27)
         required: true
+        type: string
+      fly_org:
+        description: Fly org slug (from `fly orgs list`, e.g. personal)
+        required: false
+        default: personal
         type: string
 
 concurrency:
@@ -44,17 +49,24 @@ jobs:
             exit 1
           fi
 
-      - name: Create Fly app if needed
+      - name: Create Fly app (use --org; org deploy tokens omitting org silently skip create)
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           FLY_INDEXER_APP: ${{ github.event.inputs.fly_app }}
-        run: flyctl apps create "$FLY_INDEXER_APP" 2>/dev/null || true
+          FLY_ORG: ${{ github.event.inputs.fly_org }}
+        run: |
+          set -euxo pipefail
+          ORG="${FLY_ORG:-personal}"
+          APP="$FLY_INDEXER_APP"
+          flyctl apps create "$APP" --org "$ORG" -y
 
       - name: Deploy (remote build)
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           FLY_INDEXER_APP: ${{ github.event.inputs.fly_app }}
-        run: flyctl deploy --config fly.indexer.toml --remote-only --app "$FLY_INDEXER_APP"
+        run: |
+          set -euxo pipefail
+          flyctl deploy --config fly.indexer.toml --remote-only --app "$FLY_INDEXER_APP" -y
 
       - name: Summary — set this on Vercel
         env:

@@ -40,7 +40,7 @@ Fly builds the image remotely.
 
 2. **GitHub** (repo → **Settings → Secrets and variables → Actions**): add **`FLY_API_TOKEN`** with that value.
 
-3. **Actions** → **Deploy gctl indexer (Fly.io)** → **Run workflow** → type a **globally unique** app name (e.g. `gctl-indexer-gdev27`).
+3. **Actions** → **Deploy gctl indexer (Fly.io)** → **Run workflow** → type a **globally unique** app name (e.g. `gctl-indexer-gdev27`). Leave **fly_org** as `personal` unless `fly orgs list` shows a different slug (the workflow passes `--org` to `fly apps create`; without it, CI can skip creation and deploy fails with “app not found”).
 
 4. **Vercel only** (your step): set **`INDEXER_URL`** = `https://<that-app-name>.fly.dev` (no trailing slash). Redeploy the Vercel project.
 
