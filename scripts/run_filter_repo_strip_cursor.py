@@ -17,8 +17,7 @@ CALLBACK = (
 
 
 def main() -> None:
-    git_exe = "git"
-    cmd = [git_exe, "filter-repo", "--force", "--message-callback", CALLBACK]
+    cmd = ["git", "filter-repo", "--force", "--message-callback", CALLBACK]
     print("Running:", " ".join(cmd[:4]), "...")
     r = subprocess.run(cmd, cwd=ROOT)
     sys.exit(r.returncode)

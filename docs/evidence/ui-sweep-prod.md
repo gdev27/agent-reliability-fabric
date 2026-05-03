@@ -20,3 +20,10 @@ node scripts/ui-sweep-prod.mjs
 ```
 
 Optional: `UI_SWEEP_BASE=https://preview-url.vercel.app node scripts/ui-sweep-prod.mjs`
+
+## Post git history rewrite (force-push `main`)
+
+- Re-ran `node scripts/ui-sweep-prod.mjs`: PASS.
+- `GET https://gctl.vercel.app/api/ops/overview`: `source: "live"`, healthy.
+
+Pre-rewrite full-object backup (local, outside repo): `../gctl-pre-filter-coauthor.bundle` next to the repo folder. Tree at previous tip `main^{tree}` matched after message-only filter (`5997b34340a49621357a6a2a2c4a20b25292872f`) before the small follow-up commit adding `scripts/run_filter_repo_strip_cursor.py`.
